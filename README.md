@@ -1,5 +1,5 @@
-fluent-plugin-dotted-keys
-============================
+fluent-plugin-dotted-keys [EXPERIMENTAL]
+========================================
 
 A fluentd filter that can take records with dotted keys and convert them
 into deeply structured hashes.
@@ -46,4 +46,13 @@ This filter would produce the following deeply structured hash:
     }
   }
 }
+~~~
+
+
+To use in the td-agent config, add something similar to the following to your config file:
+
+~~~
+<filter foo.bar>
+  type dotted_keys
+</filter>
 ~~~
