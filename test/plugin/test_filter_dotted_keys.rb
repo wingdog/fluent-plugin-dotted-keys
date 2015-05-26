@@ -77,45 +77,45 @@ class DottedKeysFilter < Test::Unit::TestCase
         'output' => {
           'a5' => {'b' => {'c' => 'a5.b.c', 'd' => {'e' => 'a5.b.d.e'}}}
         }
+      },
+      {
+        'input' => {
+          'userId' =>          'f0b6d30d-d5dc-427f-899a-a2654c4189ba',
+          'userRole' =>        'admin',
+          'log.id' =>          'd397b870-0331-11e5-8418-1697f925ec7b',
+          'log.ts' =>          '2015-05-25T23:01:20Z',
+          'app.name' =>        'myapp',
+          'app.instanceId' =>  '18825fbc-0332-11e5-8418-1697f925ec7b',
+          'stat.key' =>        'createUser',
+          'stat.count' =>      1,
+          'stat.time' =>       42,
+          'really.deep.key' => 'value'
+        },
+        'output' => {
+          'userId' =>       'f0b6d30d-d5dc-427f-899a-a2654c4189ba',
+          'userRole' =>     'admin',
+          'log' => {
+            'id' =>         'd397b870-0331-11e5-8418-1697f925ec7b',
+            'ts' =>         '2015-05-25T23:01:20Z'
+          },
+          'app' => {
+            'name' =>       'myapp',
+            'instanceId' => '18825fbc-0332-11e5-8418-1697f925ec7b'
+          },
+          'stat' => {
+            'key' =>        'createUser',
+            'count' =>      1,
+            'time' =>       42
+          },
+          'really' => {
+            'deep' => {
+              'key' =>     'value'
+            }
+          }
+        }
       }
     ]
   end
-
-
-  def test_configure_defaults
-    instance = driver().instance
-
-    assert_equal nil, instance.example_string
-    assert_equal false, instance.example_bool
-    assert_equal 1, instance.example_integer
-  end
-
-  def test_configure_1
-    config = %{
-      example_string     my_string
-      example_bool       false
-      example_integer    1234
-    }
-    instance = driver(config).instance
-
-    assert_equal 'my_string', instance.example_string
-    assert_equal false, instance.example_bool
-    assert_equal 1234, instance.example_integer
-  end
-
-  def test_configure_2
-    config = %{
-      example_string     another_string
-      example_bool       true
-      example_integer    0
-    }
-    instance = driver(config).instance
-
-    assert_equal 'another_string', instance.example_string
-    assert_equal true, instance.example_bool
-    assert_equal 0, instance.example_integer
-  end
-
 
   def test_filter_sample_data
     sample_data.each do |item|
