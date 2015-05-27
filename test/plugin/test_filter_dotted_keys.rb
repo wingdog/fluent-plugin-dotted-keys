@@ -51,24 +51,6 @@ class DottedKeysFilter < Test::Unit::TestCase
           'c' => {'a' => {'b' => {'c' => {'d' => 'c.a.b.c.d', 'e' => 'c.a.b.c.e'}}}}
         }
       },
-      # {
-      #   'input' => {
-      #     'a3.b.c.d' => 'a3.b.c.d',
-      #     'a3.b' => 'a3.b'
-      #   },
-      #   'output' => {
-      #     'a3' => {'b' => 'a3.b'}
-      #   }
-      # },
-      # {
-      #   'input' => {
-      #     'a4.b' => 'a4.b',
-      #     'a4.b.c.d' => 'a4.b.c.d'
-      #   },
-      #   'output' => {
-      #     'a4' => {'b' => {'c' => {'d' => 'a4.b.c.d'}}}
-      #   }
-      # },
       {
         'input' => {
           'a5' => {'b' => {'c' => 'a5.b.c'}},
@@ -117,31 +99,45 @@ class DottedKeysFilter < Test::Unit::TestCase
     ]
   end
 
+  def sample_data_bad
+    [
+      {
+        'a3.b.c.d' => 'a3.b.c.d',
+        'a3.b' => 'a3.b'
+      },
+      {
+        'a4.b' => 'a4.b',
+        'a4.b.c.d' => 'a4.b.c.d'
+      }
+    ]
+  end
+
+
   def test_filter_sample_data
     sample_data.each do |item|
       input = item['input']
       output = item['output']
 
       d = driver()
-      begin
-        d.emit(input)
-        d.run
-      rescue ArgumentError => e
-        print "Caught an ArgumentError: " + e
-        print input
-        continue
-      end
+      d.emit(input)
+      d.run
       records = d.emits
       tag, ts, record = records[0]
       assert_equal(output, record)
     end
-
-    # if you want to iterate through the records, you can also:
-    # d.filtered.each { |time, record|
-    #   assert_equal(some, comparison)
-    # }
-
   end
 
+  def test_filter_sample_data_bad
+    sample_data_bad.each do |item|
+      d = driver()
+      # print "EMITTING ITEM: #{item}\n"
+      d.emit(item)
+      d.run
+      records = d.emits
+      tag, ts, record = records[0]
+      # print "ASSERTING RECORD: #{record}\n"
+      assert_equal(item, record)
+    end
+  end
 
 end

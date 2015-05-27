@@ -21,51 +21,39 @@ module Fluent
     end
 
 
-    def transform_v0(tag, time, record)
+    def transform_v0(record)
       new_hash = {}
 
-      # print "\n*****Original Record:\n#{record}\n\n"
-
       record.each do |key, value|
-        # print "============ #{key} / #{value} ================\n"
         h = new_hash
-        # print "current new_hash is: #{new_hash}\n"
-        # print "current hash is: #{h}\n"
 
         parts = key.to_s.split('.')
         while parts.length > 0
           new_key = parts[0]
           rest = parts[1..-1]
-          # print "----\n"
-          # print "current new_key: #{new_key}, rest: #{rest}\n"
-          # print "current rest length is now: #{rest.length}\n"
-          if rest.length > 0
-            # print "trying to set key #{new_key} if nil\n"
-            h[new_key] = {} if h[new_key].nil?
-          else
-            # print "trying to set value for #{new_key}\n"
-            if not h[new_key].nil?
-              # print "raising an error\n"
-              raise ArgumentError, "Hash key #{new_key} is already set to #{h[new_key]}", caller
+
+          if not h.instance_of? Hash
+            raise ArgumentError, "Trying to set key #{new_key} to value #{value} on a non hash #{h}\n"
+          end
+
+          if rest.length == 0
+            if h[new_key].instance_of? Hash
+              raise ArgumentError, "Replacing a hash with a scalar. key #{new_key}, value #{value}, current value #{h[new_key]}\n"
             end
-            # print "trying to do a store of key #{new_key} and value #{value}\n"
+
             h.store(new_key, value)
+            break
+          end
+
+          if h[new_key].nil?
+            h[new_key] = {}
           end
 
           h = h[new_key]
-          # print "current hash is now: #{h}\n"
           parts = rest
-          # print "current parts is now: #{parts}\n"
-          # print "current parts length is now: #{parts.length}\n"
-          # print "current new_hash is: #{new_hash}\n"
         end
-
-        # print "Done with while loop\n"
       end
 
-      # print "========= final hash ========\n"
-      # print new_hash
-      # print "\n=============================\n"
       new_hash
     end
 
@@ -75,7 +63,7 @@ module Fluent
     #
     # Tweaked the variable names so they're consistent across both versions
     #
-    def transform_v1(tag, time, record)
+    def transform_v1(record)
       new_hash = {}
       record.each do |key, value|
         new_key, sub_key = key.to_s.split('.')
@@ -91,7 +79,7 @@ module Fluent
       new_hash
     end
 
-    def transform_v2(tag, time, record)
+    def transform_v2(record)
       new_hash = Hash.new { |hash, key| hash[key] = {} }
 
       record.each do |key, value|
@@ -110,36 +98,18 @@ module Fluent
         new_hash[key] = value
       end
 
-      new_hash
+      return new_hash
     end
+
 
     def filter(tag, time, record)
-      # This method implements the filtering logic for individual filters
-      # It is internal to this class and called by filter_stream unless
-      # the user overrides filter_stream.
-      #
-      # Since our example is a pass-thru filter, it does nothing and just
-      # returns the record as-is.
-      # If it returns nil, that record is ignored.
-      transform_v0(tag, time, record)
+      begin
+        return transform_v0(record)
+      rescue ArgumentError => e
+        log.warn "Could not dotted_keys transform the record. #{e.message}"
+      end
+      return record
     end
 
-    # This is the filter_stream implmentation in the superclass.  It
-    # can be a starting point if you are interested in overriding the
-    # filter_stream method
-
-    # def filter_stream(tag, es)
-    #   # super
-    #   new_es = MultiEventStream.new
-    #   es.each { |time, record|
-    #     begin
-    #       filtered_record = filter(tag, time, record)
-    #       new_es.add(time, filtered_record) if filtered_record
-    #     rescue => e
-    #       router.emit_error_event(tag, time, record, e)
-    #     end
-    #   }
-    #   new_es
-    # end
   end
 end

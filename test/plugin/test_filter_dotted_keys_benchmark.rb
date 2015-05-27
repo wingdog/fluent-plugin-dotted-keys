@@ -51,15 +51,15 @@ class BenchmarkDottedKeysFilter < Test::Unit::TestCase
 
       sample_data.each do | key, record |
         bm.report("transform_v0_#{key}") {
-          @num_iterations.times { instance.transform_v0( nil, nil, record ) }
+          @num_iterations.times { instance.transform_v0( record ) }
         }
 
         bm.report("transform_v1_#{key}") {
-          @num_iterations.times { instance.transform_v1( nil, nil, record ) }
+          @num_iterations.times { instance.transform_v1( record ) }
         }
 
         bm.report("transform_v2_#{key}") {
-          @num_iterations.times { instance.transform_v2( nil, nil, record ) }
+          @num_iterations.times { instance.transform_v2( record ) }
         }
       end
     end
