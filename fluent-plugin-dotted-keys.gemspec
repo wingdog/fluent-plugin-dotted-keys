@@ -3,7 +3,7 @@ $:.push File.expand_path('../lib', __FILE__)
 
 Gem::Specification.new do |s|
   s.name          = 'fluent-plugin-dotted-keys'
-  s.version       = '0.1.0'
+  s.version       = '0.1.1'
   s.authors       = ['gtrevg']
   s.email         = ['github@trevorgattis.com']
   s.description   = %q{A fluentd filter that will convert dotted key hashes into deeply structured hashes}
