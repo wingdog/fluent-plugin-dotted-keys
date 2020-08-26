@@ -33,7 +33,7 @@ module Fluent
           rest = parts[1..-1]
 
           if not h.instance_of? Hash
-            raise ArgumentError, "Trying to set key #{new_key} to value #{value} on a non hash #{h}\n"
+            raise ArgumentError, "Trying to set key #{new_key} to value #{value} on a non hash #{h} with #{key}\n"
           end
 
           if rest.length == 0
